@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# Copyright (c) 2026 Salvo Giangreco
+# Copyright (c) 2026 fiqys <elsifycritic@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+set -o pipefail
+
+if [ ! -d "$SRC_DIR" ]; then
+    SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+fi
+export SRC_DIR
+export OUT_DIR="${OUT_DIR:-$SRC_DIR/out}"
+export TMP_DIR="${TMP_DIR:-$OUT_DIR/tmp}"
+
+source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 1
+
+PRINT_USAGE()
+{
+    echo "Usage: target2ota make [options] <output.zip> <target_files.zip>" >&2
+    echo "" >&2
+    echo "  -i, --incremental <source.zip>   incremental OTA (not implemented yet)" >&2
+}
+
+CMD="$1"
+shift
+
+case "$CMD" in
+    make)
+        INCREMENTAL=false
+        SOURCE_ZIP=""
+
+        while [[ "$1" == "-"* ]]; do
+            if [[ "$1" == "--incremental" ]] || [[ "$1" == "-i" ]]; then
+                INCREMENTAL=true
+                shift; SOURCE_ZIP="$1"
+            else
+                LOGE "Unknown option: $1"
+                exit 1
+            fi
+            shift
+        done
+
+        OUTPUT_FILE="$1"
+        TARGET_ZIP="$2"
+
+        if [ ! "$OUTPUT_FILE" ] || [ ! "$TARGET_ZIP" ]; then
+            PRINT_USAGE
+            exit 1
+        fi
+        if [[ "$OUTPUT_FILE" != *".zip" ]]; then
+            LOGE "Output file name must have \".zip\" extension"
+            exit 1
+        fi
+        if [ ! -f "$TARGET_ZIP" ]; then
+            LOGE "File not found: $TARGET_ZIP"
+            exit 1
+        fi
+        [[ "$OUTPUT_FILE" != /* ]] && OUTPUT_FILE="$PWD/$OUTPUT_FILE"
+        [[ "$TARGET_ZIP" != /* ]] && TARGET_ZIP="$PWD/$TARGET_ZIP"
+
+        mkdir -p "$OUT_DIR"
+
+        if $INCREMENTAL; then
+            LOGE "Incremental OTA generation is not implemented yet."
+            exit 1
+        else
+            "$SRC_DIR/scripts/internal/build_full_ota_zip.sh" "$TARGET_ZIP" "$OUTPUT_FILE" || exit 1
+        fi
+
+        LOG "Done: ${OUTPUT_FILE}"
+        ;;
+    --help|-h|"")
+        PRINT_USAGE
+        ;;
+    *)
+        LOGE "Unknown command: $CMD"
+        PRINT_USAGE
+        exit 1
+        ;;
+esac
+
+exit 0
