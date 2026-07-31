@@ -226,7 +226,7 @@ GENERATE_OTA_METADATA
 LOG "- Creating zip"
 EVAL "rm -f \"$TMP_DIR/rom.zip\"" || exit 1
 EVAL "cd \"$TMP_DIR\" && 7z a -tzip -mx=0 -mmt=$(nproc) -snl $TMP_DIR/rom.zip -r *.patch.dat -ir!META-INF/com/android/* -i!*.new.dat.br" || exit 1
-EVAL "cd \"$TMP_DIR\" && 7z a -tzip -mx=3 -mmt=$(nproc) -snl $TMP_DIR/rom.zip -r * -xr!META-INF/com/android/* -x!*.new.dat.br -x!*.patch.dat -x!rom.zip -x!IMAGES -x!RADIO -x!RECOVERY -x!BOOT" || exit 1
+EVAL "cd \"$TMP_DIR\" && 7z a -tzip -mx=3 -mmt=$(nproc) -snl $TMP_DIR/rom.zip -r * -xr!META-INF/com/android/* -x!*.new.dat.br -x!*.patch.dat -x!rom.zip -x!IMAGES -x!RADIO -x!RECOVERY -x!BOOT -x!ROOT -x!SYSTEM -x!VENDOR -x!PRODUCT -x!SYSTEM_EXT -x!ODM -x!ODM_DLKM -x!VENDOR_DLKM -x!SYSTEM_DLKM -x!VENDOR_BOOT -x!INIT_BOOT -x!PREBUILT_IMAGES -x!META -x!OTA -x!INSTALL" || exit 1
 
 LOG "- Signing zip"
 EVAL "signapk -w \"$PUBLIC_KEY_PATH\" \"$PRIVATE_KEY_PATH\" \"$TMP_DIR/rom.zip\" \"$OUTPUT_FILE\"" || exit 1
