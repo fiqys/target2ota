@@ -83,6 +83,7 @@ FIND_FSTAB()
         "$TMP_DIR/RECOVERY/RAMDISK/etc/recovery.fstab"
         "$TMP_DIR/RECOVERY/RAMDISK/first_stage_ramdisk/system/etc/recovery.fstab"
         "$TMP_DIR/BOOT/RAMDISK/system/etc/recovery.fstab"
+        "$TMP_DIR/VENDOR_BOOT/RAMDISK_FRAGMENTS/recovery/RAMDISK/system/etc/recovery.fstab"
     )
 
     for f in "${CANDIDATES[@]}"; do
