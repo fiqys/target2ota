@@ -27,6 +27,7 @@ GENERATE_OP_LIST()
 
     local PARTITION_SIZE=0
     local OCCUPIED_SPACE=0
+    local IMG
 
     {
         echo "# Remove all existing dynamic partitions and groups before applying full OTA"
@@ -34,14 +35,19 @@ GENERATE_OP_LIST()
         echo "# Add group $SUPER_GROUP_NAME with maximum size $SUPER_GROUP_SIZE"
         echo "add_group $SUPER_GROUP_NAME $SUPER_GROUP_SIZE"
         for p in $PARTITIONS_LIST; do
-            if [ -f "$TMP_DIR/$p.img" ]; then
+            IMG="$TMP_DIR/IMAGES/$p.img"
+            [ ! -f "$IMG" ] && IMG="$TMP_DIR/$p.img"
+            if [ -f "$IMG" ]; then
+                PARTITION_SIZE="$(GET_IMAGE_SIZE "$IMG")"
                 echo "# Add partition $p to group $SUPER_GROUP_NAME"
                 echo "add $p $SUPER_GROUP_NAME"
             fi
         done
         for p in $PARTITIONS_LIST; do
-            if [ -f "$TMP_DIR/$p.img" ]; then
-                PARTITION_SIZE="$(GET_IMAGE_SIZE "$TMP_DIR/$p.img")"
+            IMG="$TMP_DIR/IMAGES/$p.img"
+            [ ! -f "$IMG" ] && IMG="$TMP_DIR/$p.img"
+            if [ -f "$IMG" ]; then
+                PARTITION_SIZE="$(GET_IMAGE_SIZE "$IMG")"
                 echo "# Grow partition $p from 0 to $PARTITION_SIZE"
                 echo "resize $p $PARTITION_SIZE"
                 OCCUPIED_SPACE=$((OCCUPIED_SPACE + PARTITION_SIZE))
