@@ -10,7 +10,7 @@ if [ ! -d "$SRC_DIR" ]; then
 fi
 export SRC_DIR
 export OUT_DIR="${OUT_DIR:-$SRC_DIR/out}"
-export TMP_DIR="${TMP_DIR:-$OUT_DIR/tmp}"
+export TMP_DIR="${TMP_DIR:-$OUT_DIR/work_dir}"
 
 source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 1
 
@@ -55,7 +55,7 @@ case "$CMD" in
             LOGE "File not found: $TARGET_ZIP"
             exit 1
         fi
-        [[ "$OUTPUT_FILE" != /* ]] && OUTPUT_FILE="$PWD/$OUTPUT_FILE"
+        [[ "$OUTPUT_FILE" != /* ]] && OUTPUT_FILE="$OUT_DIR/$OUTPUT_FILE"
         [[ "$TARGET_ZIP" != /* ]] && TARGET_ZIP="$PWD/$TARGET_ZIP"
 
         mkdir -p "$OUT_DIR"

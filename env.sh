@@ -11,7 +11,7 @@ unset -f _GET_SRC_DIR
 
 export SRC_DIR
 export OUT_DIR="$SRC_DIR/out"
-export TMP_DIR="$OUT_DIR/tmp"
+export TMP_DIR="$OUT_DIR/work_dir"
 export TOOLS_DIR="$OUT_DIR/tools"
 
 [[ ":$PATH:" != *":$SRC_DIR/bin:"* ]] && export PATH="$SRC_DIR/bin:$PATH"
