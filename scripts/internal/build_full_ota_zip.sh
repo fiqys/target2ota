@@ -180,6 +180,28 @@ cp -a "$SRC_DIR/prebuilts/deprecated-ota/update-binary" "$TMP_DIR/META-INF/com/g
 LOG "- Extracting target-files zip"
 EVAL "unzip -o \"$TARGET_ZIP\" -d \"$TMP_DIR\"" || exit 1
 
+if [ ! "$OUTPUT_FILE" ]; then
+    LOG "- Determining output file name"
+
+    TARGET_ZIP_BASENAME="$(basename "$TARGET_ZIP")"
+    ROM_NAME="${TARGET_ZIP_BASENAME%%_*}"
+    [ "$ROM_NAME" == "$TARGET_ZIP_BASENAME" ] && ROM_NAME="rom"
+
+    ROM_VERSION="$(GET_BUILD_PROP "ro.lineage.build.version")"
+    [ ! "$ROM_VERSION" ] && ROM_VERSION="$(GET_BUILD_PROP "ro.build.version.incremental")"
+
+    BUILD_DATE="$(GET_BUILD_PROP "ro.build.date.utc")"
+    BUILD_DATE="$(date -u -d "@$BUILD_DATE" "+%Y%m%d" 2> /dev/null)"
+
+    DEVICE_NAME="$(GET_DEVICE)"
+
+    _CHECK_NON_EMPTY_PARAM "ROM_VERSION" "$ROM_VERSION" || exit 1
+    _CHECK_NON_EMPTY_PARAM "BUILD_DATE" "$BUILD_DATE" || exit 1
+    _CHECK_NON_EMPTY_PARAM "DEVICE_NAME" "$DEVICE_NAME" || exit 1
+
+    OUTPUT_FILE="$OUT_DIR/${ROM_NAME}-${ROM_VERSION}-${BUILD_DATE}-UNOFFICIAL-${DEVICE_NAME}.zip"
+fi
+
 PARTITIONS_LIST="$(GET_PARTITIONS_LIST)"
 
 TARGET_USE_DYNAMIC_PARTITIONS=false
@@ -230,5 +252,7 @@ EVAL "cd \"$TMP_DIR\" && 7z a -tzip -mx=3 -mmt=$(nproc) -snl $TMP_DIR/rom.zip -r
 
 LOG "- Signing zip"
 EVAL "signapk -w \"$PUBLIC_KEY_PATH\" \"$PRIVATE_KEY_PATH\" \"$TMP_DIR/rom.zip\" \"$OUTPUT_FILE\"" || exit 1
+
+LOG "Done: $OUTPUT_FILE"
 
 exit 0

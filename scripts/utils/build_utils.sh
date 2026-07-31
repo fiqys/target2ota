@@ -6,7 +6,7 @@
 source "$SRC_DIR/scripts/utils/common_utils.sh"
 
 DEPENDENCIES=(
-    "7z" "bc" "brotli" "cat" "cut" "dirname" "grep" "head"
+    "7z" "bc" "brotli" "cat" "cut" "date" "dirname" "grep" "head"
     "mkdir" "mv" "rm" "sed" "unzip" "wc" "xxd"
 )
 MISSING=()

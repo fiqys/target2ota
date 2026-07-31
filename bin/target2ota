@@ -16,8 +16,9 @@ source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 1
 
 PRINT_USAGE()
 {
-    echo "Usage: target2ota make [options] <output.zip> <target_files.zip>" >&2
+    echo "Usage: target2ota make [options] <target_files.zip>" >&2
     echo "" >&2
+    echo "  -m <output.zip>                  set the output file name manually (default: auto-generated)" >&2
     echo "  -i, --incremental <source.zip>   incremental OTA (not implemented yet)" >&2
 }
 
@@ -28,11 +29,14 @@ case "$CMD" in
     make)
         INCREMENTAL=false
         SOURCE_ZIP=""
+        OUTPUT_FILE=""
 
         while [[ "$1" == "-"* ]]; do
             if [[ "$1" == "--incremental" ]] || [[ "$1" == "-i" ]]; then
                 INCREMENTAL=true
                 shift; SOURCE_ZIP="$1"
+            elif [[ "$1" == "-m" ]]; then
+                shift; OUTPUT_FILE="$1"
             else
                 LOGE "Unknown option: $1"
                 exit 1
@@ -40,22 +44,23 @@ case "$CMD" in
             shift
         done
 
-        OUTPUT_FILE="$1"
-        TARGET_ZIP="$2"
+        TARGET_ZIP="$1"
 
-        if [ ! "$OUTPUT_FILE" ] || [ ! "$TARGET_ZIP" ]; then
+        if [ ! "$TARGET_ZIP" ]; then
             PRINT_USAGE
-            exit 1
-        fi
-        if [[ "$OUTPUT_FILE" != *".zip" ]]; then
-            LOGE "Output file name must have \".zip\" extension"
             exit 1
         fi
         if [ ! -f "$TARGET_ZIP" ]; then
             LOGE "File not found: $TARGET_ZIP"
             exit 1
         fi
-        [[ "$OUTPUT_FILE" != /* ]] && OUTPUT_FILE="$OUT_DIR/$OUTPUT_FILE"
+        if [ "$OUTPUT_FILE" ]; then
+            if [[ "$OUTPUT_FILE" != *".zip" ]]; then
+                LOGE "Output file name must have \".zip\" extension"
+                exit 1
+            fi
+            [[ "$OUTPUT_FILE" != /* ]] && OUTPUT_FILE="$OUT_DIR/$OUTPUT_FILE"
+        fi
         [[ "$TARGET_ZIP" != /* ]] && TARGET_ZIP="$PWD/$TARGET_ZIP"
 
         mkdir -p "$OUT_DIR"
@@ -66,8 +71,6 @@ case "$CMD" in
         else
             "$SRC_DIR/scripts/internal/build_full_ota_zip.sh" "$TARGET_ZIP" "$OUTPUT_FILE" || exit 1
         fi
-
-        LOG "Done: ${OUTPUT_FILE}"
         ;;
     --help|-h|"")
         PRINT_USAGE
