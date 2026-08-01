@@ -63,19 +63,35 @@ GENERATE_OP_LIST()
 
 GENERATE_OTA_METADATA()
 {
+    local PROTO_FILE="$SRC_DIR/external/aosp/ota_metadata.proto"
+
     local DEVICE
     local FINGERPRINT
     local TIMESTAMP
     local SECURITY_PATCH_LEVEL
     local INCREMENTAL
+    local SDK_LEVEL
 
     DEVICE="$(GET_DEVICE)"
     FINGERPRINT="$(GET_BUILD_PROP "ro.build.fingerprint")"
     TIMESTAMP="$(GET_BUILD_PROP "ro.build.date.utc")"
     SECURITY_PATCH_LEVEL="$(GET_BUILD_PROP "ro.build.version.security_patch")"
     INCREMENTAL="$(GET_BUILD_PROP "ro.build.version.incremental")"
+    SDK_LEVEL="$(GET_BUILD_PROP "ro.build.version.release")"
 
     mkdir -p "$TMP_DIR/META-INF/com/android"
+
+    local MESSAGE
+    MESSAGE+="type: BLOCK"
+    MESSAGE+=", precondition: {device: \\\"$DEVICE\\\"}"
+    MESSAGE+=", postcondition: {device: \\\"$DEVICE\\\""
+    MESSAGE+=", build: \\\"$FINGERPRINT\\\""
+    MESSAGE+=", build_incremental: \\\"$INCREMENTAL\\\""
+    MESSAGE+=", timestamp: $TIMESTAMP"
+    MESSAGE+=", sdk_level: \\\"$SDK_LEVEL\\\""
+    MESSAGE+=", security_patch_level: \\\"$SECURITY_PATCH_LEVEL\\\"}"
+
+    EVAL "protoc --encode=build.tools.releasetools.OtaMetadata --proto_path=\"$(dirname "$PROTO_FILE")\" \"$PROTO_FILE\" <<< \"$MESSAGE\" > \"$TMP_DIR/META-INF/com/android/metadata.pb\"" || exit 1
 
     {
         echo "ota-required-cache=0"
