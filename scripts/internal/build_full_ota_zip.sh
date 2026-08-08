@@ -77,7 +77,7 @@ GENERATE_OTA_METADATA()
     TIMESTAMP="$(GET_BUILD_PROP "ro.build.date.utc")"
     SECURITY_PATCH_LEVEL="$(GET_BUILD_PROP "ro.build.version.security_patch")"
     INCREMENTAL="$(GET_BUILD_PROP "ro.build.version.incremental")"
-    SDK_LEVEL="$(GET_BUILD_PROP "ro.build.version.release")"
+    SDK_LEVEL="$(GET_BUILD_PROP "ro.build.version.sdk")"
 
     mkdir -p "$TMP_DIR/META-INF/com/android"
 
@@ -98,6 +98,7 @@ GENERATE_OTA_METADATA()
         echo "ota-type=BLOCK"
         echo "post-build=$FINGERPRINT"
         echo "post-build-incremental=$INCREMENTAL"
+        echo "post-sdk-level=$SDK_LEVEL"
         echo "post-security-patch-level=$SECURITY_PATCH_LEVEL"
         echo "post-timestamp=$TIMESTAMP"
         echo "pre-device=$DEVICE"

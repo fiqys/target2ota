@@ -31,12 +31,20 @@ GET_BUILD_PROP()
 
     local PROP="$1"
 
-    local FILES=()
+    local PRIORITY_FILES=(
+        "$TMP_DIR/SYSTEM/build.prop"
+        "$TMP_DIR/SYSTEM/system/build.prop"
+    )
+
+    local OTHER_FILES=()
     while IFS= read -r f; do
-        FILES+=("$f")
+        OTHER_FILES+=("$f")
     done < <(find "$TMP_DIR" -maxdepth 4 -iname "*build.prop" 2> /dev/null)
 
-    for f in "${FILES[@]}"; do
+    local f
+    for f in "${PRIORITY_FILES[@]}" "${OTHER_FILES[@]}"; do
+        [ -f "$f" ] || continue
+
         local VALUE
         VALUE="$(sed -n "s/^${PROP}=//p" "$f" | head -n 1)"
         if [ "$VALUE" ]; then
