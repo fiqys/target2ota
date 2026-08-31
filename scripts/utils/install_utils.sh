@@ -59,7 +59,7 @@ GET_DEVICE()
     local DEVICE
     local PROP
 
-    for PROP in "ro.product.device" "ro.product.system.device" "ro.build.product"; do
+    for PROP in "ro.product.device" "ro.product.product.device" "ro.product.vendor.device" "ro.product.system.device" "ro.build.product"; do
         DEVICE="$(GET_BUILD_PROP "$PROP")"
         if [ "$DEVICE" ]; then
             echo -n "$DEVICE"
